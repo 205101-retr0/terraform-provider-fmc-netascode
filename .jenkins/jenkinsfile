@@ -31,6 +31,7 @@ pipeline {
 
         stage('Build') {
             script {
+                cd .jenkins
                 chmod +x build.sh
                 bash build.sh
             }
