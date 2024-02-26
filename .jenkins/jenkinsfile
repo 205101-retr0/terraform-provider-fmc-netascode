@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    
+    tools { go 'go1.21' }
+    
+    options {
+        timestamps()
+        ansiColor("xterm")
+    }
+    
+    // Can change
+    environment {
+        FMC_HOST="172.16.133.47"
+        FMC_USERNAME="admin"
+        FMC_PASSWORD="Cisco@123"
+        FTD_HOST='172.16.133.48'
+        FMC_INSECURE_SKIP_VERIFY='true'
+    }
+    
+    // same as env but immutable
+    parameters {
+    string(name: 'GIT_URL', defaultValue: 'https://github.com/205101-retr0/terraform-provider-fmc-netascode.git/', description: 'project url')
+    }
+
+     stages {
+        stage('Lint') {
+            steps {
+                build job: 'Linting Errors', wait: true
+            }
+        }
+
+        stage('Build') {
+            script {
+                chmod +x build.sh
+                bash build.sh
+            }
+        }
+
+        stage('Test') {
+            steps {
+                build job: 'Testing provider', wait: true
+            }
+        }
+    }
+}
