@@ -52,10 +52,6 @@ pipeline {
         // }
     }
     post {
-        always { 
-            cleanWs()
-        }
-
         success {
             script {
                 def commitInfo = sh(script: 'git log -1 --pretty=format:"%h %ae %an"', returnStdout: true).trim()
@@ -70,5 +66,8 @@ pipeline {
                           to: "teja.ind30@gmail.com" 
             }
         }
+    }
+    always {
+        cleanWs()
     }
 }
