@@ -1,5 +1,5 @@
 provider "fmc" {
   username = "admin"
-  password = "password"
-  url      = "https://10.1.1.1"
+  password = "Cisco@123"
+  url      = "https://10.106.143.111
 }
