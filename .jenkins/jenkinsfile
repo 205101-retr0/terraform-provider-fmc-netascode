@@ -23,6 +23,8 @@ pipeline {
     }
 
      stages {
+        // To add more stages for the github actions...
+
         stage('Lint') {
             steps {
                 build job: 'Linting Errors', wait: true
@@ -48,4 +50,19 @@ pipeline {
             } 
         }
     }
+    post {
+        success {
+            script {
+                def commitInfo = sh(script: 'git log -1 --pretty=format:"%h %ae %an"', returnStdout: true).trim()
+                def commitDetails = commitInfo.split(' ')
+
+                def commitHash = commitDetails[0]
+                def commitEmail = commitDetails[1]
+                def commitAuthor = commitDetails[2]
+
+                emailext subject: "Success - Build #${BUILD_NUMBER} - ${BUILD_STATUS}",
+                          body: "The build was successful. You pushed the code. Original pusher: ${commitAuthor} (${commitEmail})",
+                          to: "teande@cisco.com" 
+            }
+        }
 }
