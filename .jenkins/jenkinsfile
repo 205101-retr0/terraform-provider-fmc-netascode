@@ -6,6 +6,7 @@ pipeline {
     options {
         timestamps()
         ansiColor("xterm")
+        buildDiscarder(logRotator(numToKeepStr: '5', daysToKeepStr: '1', artifactNumToKeepStr: '30'))
     }
     
     // Can change
@@ -51,6 +52,10 @@ pipeline {
         // }
     }
     post {
+        always { 
+            cleanWs()
+        }
+
         success {
             script {
                 def commitInfo = sh(script: 'git log -1 --pretty=format:"%h %ae %an"', returnStdout: true).trim()
@@ -62,7 +67,7 @@ pipeline {
 
                 emailext subject: "Success - Build #$env.BUILD_NUMBER - $env.BUILD_STATUS",
                           body: "The build was successful. You pushed the code. Original pusher: $commitAuthor ($commitEmail)",
-                          to: "teande@cisco.com" 
+                          to: "teja.ind30@gmail.com" 
             }
         }
     }
