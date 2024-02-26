@@ -68,6 +68,18 @@ pipeline {
         }
 
         always {
+            script {
+                def commitInfo = sh(script: 'git log -1 --pretty=format:"%h %ae %an"', returnStdout: true).trim()
+                def commitDetails = commitInfo.split(' ')
+
+                def commitHash = commitDetails[0]
+                def commitEmail = commitDetails[1]
+                def commitAuthor = commitDetails[2]
+
+                emailext subject: "Success - Build #$env.BUILD_NUMBER - $env.BUILD_STATUS",
+                          body: "The build was successful. You pushed the code. Original pusher: $commitAuthor ($commitEmail)",
+                          to: "teja.ind30@gmail.com" 
+            }
             cleanWs()
         }
     }
