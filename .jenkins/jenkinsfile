@@ -32,10 +32,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    dir('.jenkins') {
-                        sh 'chmod +x build.sh'
-                        sh 'build.sh'
-                    }
+                    sh 'chmod +x .jenkins/build.sh'
+                    sh '.jenkins/build.sh'
                 }
             }
            
