@@ -77,8 +77,8 @@ pipeline {
                 def commitAuthor = commitDetails[2]
 
                 emailext subject: "Success - Build #${env.BUILD_NUMBER} - ${env.BUILD_STATUS}",
-                          body: "The build was successful. You pushed the code. Original pusher: $commitAuthor ($commitEmail)",
-                          to: "teande@cisco.com" 
+                          body: "The build was successful. You pushed the code. Original pusher: $commitAuthor ($commitEmail) $commitInfo",
+                          to: "teande@cisco.com, ${commitEmail}" 
             }
             cleanWs()
         }
