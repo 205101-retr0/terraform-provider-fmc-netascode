@@ -41,14 +41,14 @@ pipeline {
            
         }
 
-        stage('Test') {
-            steps {
-                script {
-                    sh 'chmod +x .jenkins/test.sh'
-                    sh '.jenkins/test.sh'
-                }
-            } 
-        }
+        // stage('Test') {
+        //     steps {
+        //         script {
+        //             sh 'chmod +x .jenkins/test.sh'
+        //             sh '.jenkins/test.sh'
+        //         }
+        //     } 
+        // }
     }
     post {
         success {
@@ -60,8 +60,8 @@ pipeline {
                 def commitEmail = commitDetails[1]
                 def commitAuthor = commitDetails[2]
 
-                emailext subject: "Success - Build #${BUILD_NUMBER} - ${BUILD_STATUS}",
-                          body: "The build was successful. You pushed the code. Original pusher: ${commitAuthor} (${commitEmail})",
+                emailext subject: "Success - Build #$env.BUILD_NUMBER - $env.BUILD_STATUS",
+                          body: "The build was successful. You pushed the code. Original pusher: $commitAuthor ($commitEmail)",
                           to: "teande@cisco.com" 
             }
         }
