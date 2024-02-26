@@ -1,4 +1,4 @@
-export FMC_URL="https://172.16.13.47/"
+export FMC_URL="https://172.16.13.47"
 export FMC_USERNAME="jenkins"
 export FMC_PASSWORD="jenkins"
 
