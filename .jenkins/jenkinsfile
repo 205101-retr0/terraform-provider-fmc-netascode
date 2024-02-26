@@ -18,9 +18,9 @@ pipeline {
     }
     
     // same as env but immutable
-    parameters {
-    string(name: 'GIT_URL', defaultValue: 'https://github.com/205101-retr0/terraform-provider-fmc-netascode.git/', description: 'project url')
-    }
+    // parameters {
+    // string(name: 'GIT_URL', defaultValue: 'https://github.com/205101-retr0/terraform-provider-fmc-netascode.git/', description: 'project url')
+    // }
 
      stages {
         // To add more stages for the github actions...
