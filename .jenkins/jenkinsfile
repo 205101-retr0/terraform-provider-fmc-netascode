@@ -41,8 +41,11 @@ pipeline {
 
         stage('Test') {
             steps {
-                build job: 'Testing provider', wait: true
-            }
+                script {
+                    sh 'chmod +x .jenkins/test.sh'
+                    sh '.jenkins/test.sh'
+                }
+            } 
         }
     }
 }
