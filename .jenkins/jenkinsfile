@@ -84,13 +84,19 @@ pipeline {
                 def commitAuthor = commitDetails[2]
                 def commitSubject = commitDetails[3..-1].join(' ')
 
-                emailext subject: "Failure - Build #${env.BUILD_NUMBER} - ${env.BUILD_STATUS}",
+                def failedStage = currentBuild.rawBuild.getResult().getDisplayName()
+
+                def consoleOutput = currentBuild.rawBuild.getLog(1000).join('\n')
+
+                emailext subject: "Failure - Build #${env.BUILD_NUMBER} - ${failedStage}",
                           body: """
                                 The build failed. \n
                                 Original pusher: $commitAuthor ($commitEmail)
                                 Commit Subject: $commitSubject
 
                                 Build URL: $BUILD_URL
+
+                                Build Log: $consoleOutput
                           """,
                           to: "teande@cisco.com, ${commitEmail}" 
             }
