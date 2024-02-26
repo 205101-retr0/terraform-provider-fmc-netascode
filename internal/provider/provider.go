@@ -61,7 +61,7 @@ type FmcProviderData struct {
 
 // Metadata returns the provider type name.
 func (p *FmcProvider) Metadata(_ context.Context, _ provider.MetadataRequest, resp *provider.MetadataResponse) {
-	resp.TypeName = "fmc"
+	resp.TypeName = "fmc
 	resp.Version = p.version
 }
 
