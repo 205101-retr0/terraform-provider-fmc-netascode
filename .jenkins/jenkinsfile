@@ -30,7 +30,6 @@ pipeline {
             steps {
                 script {
                     last_started = env.STAGE_NAME
-                    echo env.STAGE_NAME
                 }
                 build job: 'Linting Errors', wait: true
             }
@@ -91,7 +90,7 @@ pipeline {
                 def commitSubject = commitDetails[3..-1].join(' ')
 
                 // def failedStage = currentBuild.rawBuild.getResult().getDisplayName()
-                def failedStage = $last_started
+                // def failedStage = $last_started
 
                 def consoleOutput = currentBuild.rawBuild.getLog(1000).join('\n')
 
