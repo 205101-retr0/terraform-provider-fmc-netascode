@@ -92,7 +92,7 @@ pipeline {
                 // def failedStage = currentBuild.rawBuild.getResult().getDisplayName()
                 def failedStage = ${last_started}
 
-                def consoleOutput = currentBuild.rawBuild.getLog(1000).join('\n')
+                // def consoleOutput = currentBuild.rawBuild.getLog(1000).join('\n')
 
                 emailext subject: "Failure - Build #${env.BUILD_NUMBER} - ${failedStage}",
                           body: """
