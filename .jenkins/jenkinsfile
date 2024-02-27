@@ -84,7 +84,8 @@ pipeline {
                 def commitAuthor = commitDetails[2]
                 def commitSubject = commitDetails[3..-1].join(' ')
 
-                def failedStage = currentBuild.rawBuild.getResult().getDisplayName()
+                // def failedStage = currentBuild.rawBuild.getResult().getDisplayName()
+                def failedStage = ${STAGE_NAME}
 
                 def consoleOutput = currentBuild.rawBuild.getLog(1000).join('\n')
 
