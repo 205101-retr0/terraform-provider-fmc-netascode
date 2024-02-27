@@ -16,6 +16,7 @@ pipeline {
         FMC_PASSWORD="Cisco@123"
         FTD_HOST='172.16.133.48'
         FMC_INSECURE_SKIP_VERIFY='true'
+        last_started=""
     }
     
     // same as env but immutable
@@ -90,7 +91,7 @@ pipeline {
                 def commitSubject = commitDetails[3..-1].join(' ')
 
                 // def failedStage = currentBuild.rawBuild.getResult().getDisplayName()
-                // def failedStage = $last_started
+                def failedStage = $last_started
 
                 def consoleOutput = currentBuild.rawBuild.getLog(1000).join('\n')
 
