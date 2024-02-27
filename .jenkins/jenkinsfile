@@ -28,6 +28,9 @@ pipeline {
 
         stage('Lint') {
             steps {
+                script {
+                    last_started = env.STAGE_NAME
+                }
                 build job: 'Linting Errors', wait: true
             }
         }
@@ -35,6 +38,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
+                    last_started = env.STAGE_NAME
                     sh 'chmod +x .jenkins/build.sh'
                     sh '.jenkins/build.sh'
                 }
@@ -45,6 +49,7 @@ pipeline {
         // stage('Test') {
         //     steps {
         //         script {
+        //             last_started = env.STAGE_NAME
         //             sh 'chmod +x .jenkins/test.sh'
         //             sh '.jenkins/test.sh'
         //         }
@@ -85,7 +90,7 @@ pipeline {
                 def commitSubject = commitDetails[3..-1].join(' ')
 
                 // def failedStage = currentBuild.rawBuild.getResult().getDisplayName()
-                def failedStage = ${STAGE_NAME}
+                def failedStage = ${last_started}
 
                 def consoleOutput = currentBuild.rawBuild.getLog(1000).join('\n')
 
