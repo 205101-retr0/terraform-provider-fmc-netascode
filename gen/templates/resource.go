@@ -24,6 +24,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -85,7 +86,7 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 			},
 			{{- range  .Attributes}}
 			{{- if not .Value}}
-			"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
+			"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 				MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
 					{{- if len .EnumValues -}}
 					.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
@@ -100,8 +101,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 					.AddDefaultValueDescription("{{.DefaultValue}}")
 					{{- end -}}
 					.String,
-				{{- if eq .Type "StringList"}}
-				ElementType:         types.StringType,
+				{{- if isListSet .}}
+				ElementType:         types.{{.ElementType}}Type,
 				{{- end}}
 				{{- if or .Reference .Mandatory}}
 				Required:            true,
@@ -141,16 +142,16 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 				Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 				{{- end}}
 				{{- if or .Id .Reference .RequiresReplace}}
-				PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
-					{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
+				PlanModifiers: []planmodifier.{{.Type}}{
+					{{snakeCase .Type}}planmodifier.RequiresReplace(),
 				},
 				{{- end}}
-				{{- if or (eq .Type "List") (eq .Type "Set")}}
+				{{- if isNestedListSet .}}
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						{{- range  .Attributes}}
 						{{- if not .Value}}
-						"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
+						"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 							MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
 								{{- if len .EnumValues -}}
 								.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
@@ -165,8 +166,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 								.AddDefaultValueDescription("{{.DefaultValue}}")
 								{{- end -}}
 								.String,
-							{{- if eq .Type "StringList"}}
-							ElementType:         types.StringType,
+							{{- if isListSet .}}
+							ElementType:         types.{{.ElementType}}Type,
 							{{- end}}
 							{{- if or .Reference .Mandatory}}
 							Required:            true,
@@ -206,16 +207,16 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 							Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 							{{- end}}
 							{{- if .RequiresReplace}}
-							PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
-								{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
+							PlanModifiers: []planmodifier.{{.Type}}{
+								{{snakeCase .Type}}planmodifier.RequiresReplace(),
 							},
 							{{- end}}
-							{{- if or (eq .Type "List") (eq .Type "Set")}}
+							{{- if isNestedListSet .}}
 							NestedObject: schema.NestedAttributeObject{
 								Attributes: map[string]schema.Attribute{
 									{{- range  .Attributes}}
 									{{- if not .Value}}
-									"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
+									"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 										MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
 											{{- if len .EnumValues -}}
 											.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
@@ -230,8 +231,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 											.AddDefaultValueDescription("{{.DefaultValue}}")
 											{{- end -}}
 											.String,
-										{{- if eq .Type "StringList"}}
-										ElementType:         types.StringType,
+										{{- if isListSet .}}
+										ElementType:         types.{{.ElementType}}Type,
 										{{- end}}
 										{{- if or .Reference .Mandatory}}
 										Required:            true,
@@ -271,16 +272,16 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 										Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 										{{- end}}
 										{{- if .RequiresReplace}}
-										PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
-											{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
+										PlanModifiers: []planmodifier.{{.Type}}{
+											{{snakeCase .Type}}planmodifier.RequiresReplace(),
 										},
 										{{- end}}
-										{{- if or (eq .Type "List") (eq .Type "Set")}}
+										{{- if isNestedListSet .}}
 										NestedObject: schema.NestedAttributeObject{
 											Attributes: map[string]schema.Attribute{
 												{{- range  .Attributes}}
 												{{- if not .Value}}
-												"{{.TfName}}": schema.{{if or (eq .Type "List") (eq .Type "Set")}}{{.Type}}Nested{{else if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}Attribute{
+												"{{.TfName}}": schema.{{if isNestedListSet .}}{{.Type}}Nested{{else if isList .}}List{{else if isSet .}}Set{{else if eq .Type "Versions"}}List{{else if eq .Type "Version"}}Int64{{else}}{{.Type}}{{end}}Attribute{
 													MarkdownDescription: helpers.NewAttributeDescription("{{.Description}}")
 														{{- if len .EnumValues -}}
 														.AddStringEnumDescription({{range .EnumValues}}"{{.}}", {{end}})
@@ -295,8 +296,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 														.AddDefaultValueDescription("{{.DefaultValue}}")
 														{{- end -}}
 														.String,
-													{{- if eq .Type "StringList"}}
-													ElementType:         types.StringType,
+													{{- if isListSet .}}
+													ElementType:         types.{{.ElementType}}Type,
 													{{- end}}
 													{{- if or .Reference .Mandatory}}
 													Required:            true,
@@ -336,8 +337,8 @@ func (r *{{camelCase .Name}}Resource) Schema(ctx context.Context, req resource.S
 													Default:             stringdefault.StaticString("{{.DefaultValue}}"),
 													{{- end}}
 													{{- if .RequiresReplace}}
-													PlanModifiers: []planmodifier.{{if eq .Type "StringList"}}List{{else}}{{.Type}}{{end}}{
-														{{if eq .Type "StringList"}}list{{else}}{{snakeCase .Type}}{{end}}planmodifier.RequiresReplace(),
+													PlanModifiers: []planmodifier.{{.Type}}{
+														{{snakeCase .Type}}planmodifier.RequiresReplace(),
 													},
 													{{- end}}
 												},
@@ -438,7 +439,7 @@ func (r *{{camelCase .Name}}Resource) Create(ctx context.Context, req resource.C
 	plan.Id = types.StringValue(res.Get("id").String())
 
 	{{- if hasResourceId .Attributes}}
-	res, err = r.client.Get(plan.getPath() + "/" + plan.Id.ValueString(), reqMods...)
+	res, err = r.client.Get(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
@@ -472,7 +473,7 @@ func (r *{{camelCase .Name}}Resource) Read(ctx context.Context, req resource.Rea
 
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Read", state.Id.String()))
 
-	res, err := r.client.Get(state.getPath() + "/" + state.Id.ValueString(), reqMods...)
+	res, err := r.client.Get(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()), reqMods...)
 	if err != nil && strings.Contains(err.Error(), "StatusCode 404") {
 		resp.State.RemoveResource(ctx)
 		return
@@ -522,14 +523,14 @@ func (r *{{camelCase .Name}}Resource) Update(ctx context.Context, req resource.U
 	{{- if not .NoUpdate}}
 
 	body := plan.toBody(ctx, state)
-	res, err := r.client.Put(plan.getPath() + "/" + plan.Id.ValueString(), body, reqMods...)
+	res, err := r.client.Put(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), body, reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to configure object (PUT), got error: %s, %s", err, res.String()))
 		return
 	}
 
 	{{- if hasResourceId .Attributes}}
-	res, err = r.client.Get(plan.getPath() + "/" + plan.Id.ValueString(), reqMods...)
+	res, err = r.client.Get(plan.getPath() + "/" + url.QueryEscape(plan.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to retrieve object (GET), got error: %s, %s", err, res.String()))
 		return
@@ -565,7 +566,7 @@ func (r *{{camelCase .Name}}Resource) Delete(ctx context.Context, req resource.D
 	tflog.Debug(ctx, fmt.Sprintf("%s: Beginning Delete", state.Id.ValueString()))
 
 	{{- if not .NoDelete}}
-	res, err := r.client.Delete(state.getPath() + "/" + state.Id.ValueString(), reqMods...)
+	res, err := r.client.Delete(state.getPath() + "/" + url.QueryEscape(state.Id.ValueString()), reqMods...)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Failed to delete object (DELETE), got error: %s, %s", err, res.String()))
 		return
